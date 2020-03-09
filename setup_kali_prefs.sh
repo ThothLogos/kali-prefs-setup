@@ -33,12 +33,12 @@ done
 
 main() {
     setup_git
-    #setup_qterminal
-    #setup_vscode
+    setup_qterminal
+    [[ $code ]] && setup_vscode
 }
 
 setup_git() {
-    git config --system user.name
+    git config --system user.name > /dev/null
     if [[ $? -eq 0 ]];then
       local gcname=$(git config --system user.name)
       echo "git user.name already set to $gcname, no changes"
@@ -46,7 +46,7 @@ setup_git() {
       echo "Setting git config --system user.name to $GITUSER"
       sudo git config --system user.name $GITUSER
     fi
-    git config --system user.email
+    git config --system user.email > /dev/null
     if [[ $? -eq 0 ]];then
       local gcmail=$(git config --system user.email)
       echo "git user.email already set to $gcmail, no changes"
@@ -57,27 +57,38 @@ setup_git() {
 }
 
 setup_qterminal() {
-  echo "Setting options in $QTERMINI..."
-  sed -i 's/Borderless.*/Borderless=true/' $QTERMINI
-  sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTERMINI
-  sed -i 's/MenuVisible.*/MenuVisible=false/' $QTERMINI
-  sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTERMINI
-  sed -i 's/TerminalMargin.*/TerminalMargin=0/' $QTERMINI
-  sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTERMINI
-  sed -i 's/colorScheme.*/colorScheme=Tango/' $QTERMINI
-  sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTERMINI
-  sed -i 's/fontSize.*/fontSize=8/' $QTERMINI
-  sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTERMINI
-  #sed -i 's/.*//' $QTERMINI
+  echo "Setting options in $QTCONFIG/qterminal.ini..."
+  sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
+  sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
+  sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
+  sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
+  sed -i 's/TerminalMargin.*/TerminalMargin=0/' $QTCONFIG/qterminal.ini
+  sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
+  sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
+  sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
+  sed -i 's/fontSize.*/fontSize=8/' $QTCONFIG/qterminal.ini
+  sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
+  #sed -i 's/.*//' $QTCONFIG
   # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
 }
 
 setup_vscode() {
-  wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
-  sudo apt install ~/Downloads/installcode.deb
+  local codeloc=$(which code)
+  if ! [[ $codeloc == "" ]];then
+    echo "VSCode is already installed, skipping install"
+  else
+    echo "Installing VSCode..."
+    wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
+    sudo apt install ~/Downloads/installcode.deb
+  fi
   code --install-extension nimda.deepdark-material
-
-  # change tab size
+  echo "Setting up VSCode settings.json..."
+  echo '{
+    "window.zoomLevel": -2,
+    "workbench.colorTheme": "Deepdark Material Theme | Full Black Version",
+    "editor.minimap.enabled": false,
+    "editor.tabSize": 2
+}' > $VSCONFIG/settings.json
 }
 
 main
