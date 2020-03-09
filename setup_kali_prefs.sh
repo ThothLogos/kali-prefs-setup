@@ -5,6 +5,7 @@
 #  - Set QTerminal options: font, colors, margin, transparency, history unlimited
 #       /home/thoth/.config/qterminal.org/qterminal.ini
 #  - Setup git credentials
+#  - Screen timeout
 #  - Move whisker panel to bottom
 #  - Set R-Super to open whisker-menu
 #  - (Optional) Install golang and setup path, gvm?
@@ -31,27 +32,40 @@ while [ "$#" -gt 0 ]; do
 done
 
 main() {
-    #setup_git
+    setup_git
     #setup_qterminal
     #setup_vscode
     echo "Yarr"
 }
 
 setup_git() {
-    sudo git config --system user.name $GITUSER
-    sudo git config --system user.email $GITMAIL
+    local gcname=$(git config --system user.name)
+    if [[ $? -eq 0 ]];
+      echo "git user.name already set to $gcname, no changes"
+    else
+      sudo git config --system user.name $GITUSER
+    fi
+    local gcmail=$(git config --system user.email)
+    if [[ $? -eq 0 ]];
+      echo "git user.email already set to $gcmail, no changes"
+    else
+      sudo git config --system user.email $GITMAIL
+    fi
 }
 
 setup_qterminal() {
-  sed -i 's/Borderless.*/Borderless=true/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/HistoryLimited.*/HistoryLimited=false/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/MenuVisible.*/MenuVisible=false/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/fontSize.*/fontSize=8/' /home/thoth/.config/qterminal.org/qterminal.ini
-  sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' /home/thoth/.config/qterminal.org/qterminal.ini
-  #sed -i 's/.*//' /home/thoth/.config/qterminal.org/qterminal.ini
+  echo "Setting options in $QTERMINI..."
+  sed -i 's/Borderless.*/Borderless=true/' $QTERMINI
+  sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTERMINI
+  sed -i 's/MenuVisible.*/MenuVisible=false/' $QTERMINI
+  sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTERMINI
+  sed -i 's/TerminalMargin.*/TerminalMargin=0/' $QTERMINI
+  sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTERMINI
+  sed -i 's/colorScheme.*/colorScheme=Tango/' $QTERMINI
+  sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTERMINI
+  sed -i 's/fontSize.*/fontSize=8/' $QTERMINI
+  sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTERMINI
+  #sed -i 's/.*//' $QTERMINI
   # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
 }
 
@@ -59,6 +73,8 @@ setup_vscode() {
   wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
   sudo apt install ~/Downloads/installcode.deb
   code --install-extension nimda.deepdark-material
+
+  # change tab size
 }
 
 main
