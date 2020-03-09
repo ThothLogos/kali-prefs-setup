@@ -35,20 +35,23 @@ main() {
     setup_git
     #setup_qterminal
     #setup_vscode
-    echo "Yarr"
 }
 
 setup_git() {
-    local gcname=$(git config --system user.name)
-    if [[ $? -eq 0 ]];
+    git config --system user.name
+    if [[ $? -eq 0 ]];then
+      local gcname=$(git config --system user.name)
       echo "git user.name already set to $gcname, no changes"
     else
+      echo "Setting git config --system user.name to $GITUSER"
       sudo git config --system user.name $GITUSER
     fi
-    local gcmail=$(git config --system user.email)
-    if [[ $? -eq 0 ]];
+    git config --system user.email
+    if [[ $? -eq 0 ]];then
+      local gcmail=$(git config --system user.email)
       echo "git user.email already set to $gcmail, no changes"
     else
+      echo "Setting git config --system user.email to $GITMAIL"
       sudo git config --system user.email $GITMAIL
     fi
 }
