@@ -61,15 +61,20 @@ setup_bashrc() {
 }
 
 setup_rust() {
-  echo "[+] Installing Rust..."
-  curl https://sh.rustup.rs -sSf | sh
-  if [[ $? -eq 0 ]];then
-    echo "Rust installation successful, running update."
-    rustup update
-    rust_installed=true
+  local rustuploc=$(which rustup)
+  if ! [[ $rustuploc == "" ]];then
+    echo "Rust is already installing, skipping Rust."
   else
-    echo "Rust installation failed!"
-    rust_installed=false
+    echo "[+] Installing Rust..."
+    curl https://sh.rustup.rs -sSf | sh
+    if [[ $? -eq 0 ]];then
+      echo "Rust installation successful, running update."
+      rustup update
+      rust_installed=true
+    else
+      echo "Rust installation failed!"
+      rust_installed=false
+    fi
   fi
 }
 
@@ -83,7 +88,7 @@ setup_golang() {
   echo "Retrieved URL: $url"
   wget -O ~/Downloads/install_golang.tar.gz $url
   if [[ $? -eq 0 ]];then
-    tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
+    sudo tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
     if [[ $? -eq 0 ]];then golang_installed=true;fi
   else
     echo "Download with wget failed for $url, golang installation aborted"
