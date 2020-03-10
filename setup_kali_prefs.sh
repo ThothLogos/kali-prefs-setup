@@ -21,25 +21,74 @@ display_usage() {
   "
 }
 
-while [ "$#" -gt 0 ]; do
+while [ "$#" -gt 0 ];do
   case "$1" in
     -h|--help) display_usage; exit 0;;
     -C|--code) code=true; shift 1;;
     -R|--rust) rust=true; shift 1;;
-    -G|--golang) golang=true; spshift 1;;
+    -G|--golang) golang=true; shift 1;;
     -A|--all) golang=true; rust=true; code=true; shift 1;;
     *) err_echo "Unknown command: $1" >&2; exit 1;;
   esac
 done
 
 main() {
-    setup_git
-    setup_qterminal
-    [[ $code ]] && setup_vscode
-    # since we're prob running this from qterm, we have to kill it
-    # to prevent the current loaded prefs in the session being re-written
-    pkill qterminal
-    # "There had to be a better way!" - Frank Costanza
+  setup_git
+  setup_qterminal
+  [[ $code ]] && setup_vscode
+  [[ $rust ]] && setup_rust
+  [[ $golang ]] && setup_golang
+  setup_bashrc
+
+  # since we're prob running this from qterm, we have to kill it
+  # to prevent the current loaded prefs in the session being re-written
+  local i=10
+  echo "This terminal will self destruct in $i..."
+  sleep 1.0
+  while [[ $i -gt 1 ]];do
+    i=$(($i-1))
+    echo "... $i"
+    sleep 1.0
+  done
+  #pkill qterminal
+  # "As I rained blows upon him, I realized; there had to be another way!" - Frank Costanza
+}
+
+setup_bashrc() {
+  echo "cd ~/Projects" >> ~/.bashrc
+  [[ $rust_installed ]] && echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
+  [[ $golang_installed ]] && echo "export PATH=$PATH:/usr/local/go/bin"
+}
+
+setup_rust() {
+  echo "[+] Installing Rust..."
+  curl https://sh.rustup.rs -sSf | sh
+  if [[ $? -eq 0 ]];then
+    echo "Rust installation successful, running update."
+    rustup update
+    rust_installed=true
+  else
+    echo "Rust installation failed!"
+    rust_installed=false
+  fi
+}
+
+setup_golang() {
+  echo "[+] Installing latest Golang..."
+  local url=$(curl -s https://golang.org/dl/ 2>&1 |
+              grep -Eoi '<a [^>]+>'     |
+              grep -Eo 'href="[^\"]+"'  |
+              grep -Eo 'https?://[^"]+' |
+              grep -i "Linux" | sed -n 1p)
+  echo "Retrieved URL: $url"
+  wget -O ~/Downloads/install_golang.tar.gz $url
+  if [[ $? -eq 0 ]];then
+    tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
+    if [[ $? -eq 0 ]];then golang_installed=true;fi
+  else
+    echo "Download with wget failed for $url, golang installation aborted"
+    golang_installed=false
+  fi
 }
 
 setup_git() {
@@ -84,13 +133,21 @@ setup_vscode() {
   if ! [[ $codeloc == "" ]];then
     echo "VSCode is already installed, skipping install"
   else
-    echo "Installing VSCode..."
+    echo "[+] Installing VSCode..."
     wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
     sudo apt install ~/Downloads/installcode.deb
+    if [[ $? -eq 0 ]];then
+      echo "VSCode installation complete"
+      vs_installed=true
+    else
+      echo "VSCode installation failed!"
+      vs_installed=false
+    fi
   fi
-  code --install-extension nimda.deepdark-material
-  echo "Setting up VSCode settings.json..."
-  echo '{
+  if [[ $vs_installed ]];then
+    code --install-extension nimda.deepdark-material
+    echo "Setting up VSCode settings.json..."
+    echo '{
     "breadcrumbs.enabled": false,
     "window.zoomLevel": -1,
     "workbench.colorTheme": "Deepdark Material Theme | Full Black Version",
@@ -101,8 +158,8 @@ setup_vscode() {
     "workbench.editor.closeEmptyGroups": false,
     "scm.countBadge": "off",
     "editor.glyphMargin": false,
-    "editor.rulers": [80, 100, 120]
-}' > $VSCONFIG/settings.json
+    "editor.rulers": [80, 100, 120] }' > $VSCONFIG/settings.json
+  fi
 }
 
 main
