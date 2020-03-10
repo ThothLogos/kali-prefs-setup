@@ -57,15 +57,15 @@ main() {
 setup_bashrc() {
   echo "cd ~/Projects" >> ~/.bashrc
   [[ $rust_installed ]] && echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
-  [[ $golang_installed ]] && echo "export PATH=$PATH:/usr/local/go/bin"
+  [[ $golang_installed ]] && echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
 }
 
 setup_rust() {
   local rustuploc=$(which rustup)
   if ! [[ $rustuploc == "" ]];then
-    echo "Rust is already installing, skipping Rust."
+    echo "rRust is already installed, skipping."
   else
-    echo "[+] Installing Rust..."
+    echo "[+] Installing latest stable Rust..."
     curl https://sh.rustup.rs -sSf | sh
     if [[ $? -eq 0 ]];then
       echo "Rust installation successful, running update."
@@ -79,20 +79,25 @@ setup_rust() {
 }
 
 setup_golang() {
-  echo "[+] Installing latest Golang..."
-  local url=$(curl -s https://golang.org/dl/ 2>&1 |
-              grep -Eoi '<a [^>]+>'     |
-              grep -Eo 'href="[^\"]+"'  |
-              grep -Eo 'https?://[^"]+' |
-              grep -i "Linux" | sed -n 1p)
-  echo "Retrieved URL: $url"
-  wget -O ~/Downloads/install_golang.tar.gz $url
-  if [[ $? -eq 0 ]];then
-    sudo tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
-    if [[ $? -eq 0 ]];then golang_installed=true;fi
+  local goloc=$(which go)
+  if ! [[ $rustuploc == "" ]];then
+    echo "[-] Golang is already installed, skipping."
   else
-    echo "Download with wget failed for $url, golang installation aborted"
-    golang_installed=false
+    echo "[+] Installing latest stable Golang..."
+    local url=$(curl -s https://golang.org/dl/ 2>&1 |
+                grep -Eoi '<a [^>]+>'     |
+                grep -Eo 'href="[^\"]+"'  |
+                grep -Eo 'https?://[^"]+' |
+                grep -i "Linux" | sed -n 1p)
+    echo "Retrieved URL: $url"
+    wget -O ~/Downloads/install_golang.tar.gz $url
+    if [[ $? -eq 0 ]];then
+      sudo tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
+      if [[ $? -eq 0 ]];then golang_installed=true;fi
+    else
+      echo "Download with wget failed for $url, golang installation aborted"
+      golang_installed=false
+    fi
   fi
 }
 
@@ -136,7 +141,7 @@ setup_qterminal() {
 setup_vscode() {
   local codeloc=$(which code)
   if ! [[ $codeloc == "" ]];then
-    echo "VSCode is already installed, skipping install"
+    echo "[-] VSCode is already installed, skipping."
   else
     echo "[+] Installing VSCode..."
     wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
