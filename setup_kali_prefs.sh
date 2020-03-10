@@ -24,9 +24,10 @@ display_usage() {
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -h|--help) display_usage; exit 0;;
-    -G|--golang) golang=true; shift 1;;
-    -R|--rust) rust=true; shift 1;;
     -C|--code) code=true; shift 1;;
+    -R|--rust) rust=true; shift 1;;
+    -G|--golang) golang=true; spshift 1;;
+    -A|--all) golang=true; rust=true; code=true; shift 1;;
     *) err_echo "Unknown command: $1" >&2; exit 1;;
   esac
 done
@@ -35,6 +36,10 @@ main() {
     setup_git
     setup_qterminal
     [[ $code ]] && setup_vscode
+    # since we're prob running this from qterm, we have to kill it
+    # to prevent the current loaded prefs in the session being re-written
+    pkill qterminal
+    # "There had to be a better way!" - Frank Costanza
 }
 
 setup_git() {
@@ -66,10 +71,12 @@ setup_qterminal() {
   sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
   sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
   sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
-  sed -i 's/fontSize.*/fontSize=8/' $QTCONFIG/qterminal.ini
+  sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
   sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
   #sed -i 's/.*//' $QTCONFIG
-  # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
+  # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?  
+  #echo "Removing write permissions from qterminal.ini,,, (workaround to make prefs stick)"
+  #chmod -w $QTCONFIG/qterminal.ini
 }
 
 setup_vscode() {
@@ -84,10 +91,17 @@ setup_vscode() {
   code --install-extension nimda.deepdark-material
   echo "Setting up VSCode settings.json..."
   echo '{
-    "window.zoomLevel": -2,
+    "breadcrumbs.enabled": false,
+    "window.zoomLevel": -1,
     "workbench.colorTheme": "Deepdark Material Theme | Full Black Version",
     "editor.minimap.enabled": false,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "editor.fontSize": 11,
+    "editor.mouseWheelZoom": true,
+    "workbench.editor.closeEmptyGroups": false,
+    "scm.countBadge": "off",
+    "editor.glyphMargin": false,
+    "editor.rulers": [80, 100, 120]
 }' > $VSCONFIG/settings.json
 }
 
