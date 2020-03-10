@@ -2,22 +2,22 @@
 
 #TODO:
 
-#  - Set QTerminal options: font, colors, margin, transparency, history unlimited
-#       /home/thoth/.config/qterminal.org/qterminal.ini
-#  - Setup git credentials
 #  - Screen timeout
 #  - Move whisker panel to bottom
 #  - Set R-Super to open whisker-menu
-#  - (Optional) Install golang and setup path, gvm?
-#  - (Optional) Install rust/cargo/etc
-#  - Install VSCode, DeepDark
 
 source config.sh
 
 display_usage() {
   echo -e "
     Usage: $(basename) [OPTIONS]
+
+  -C, --code                        Install & configure VSCode + extensions
+  -R, --rust                        Install & update Rust latest stable
+  -G, --golang                      Install Go latest stable
+  -A, --all                         Install & configure all options
   -h, --help                        This screen
+
   "
 }
 
@@ -50,7 +50,7 @@ main() {
     echo "... $i"
     sleep 1.0
   done
-  #pkill qterminal
+  pkill qterminal
   # "As I rained blows upon him, I realized; there had to be another way!" - Frank Costanza
 }
 
@@ -63,7 +63,7 @@ setup_bashrc() {
 setup_rust() {
   local rustuploc=$(which rustup)
   if ! [[ $rustuploc == "" ]];then
-    echo "rRust is already installed, skipping."
+    echo "[-] Rust is already installed, skipping."
   else
     echo "[+] Installing latest stable Rust..."
     curl https://sh.rustup.rs -sSf | sh
