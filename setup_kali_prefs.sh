@@ -33,6 +33,8 @@ while [ "$#" -gt 0 ];do
 done
 
 main() {
+  sudo apt update
+  sudo apt upgrade -y
   setup_git
   setup_qterminal
   [[ $code ]] && setup_vscode
@@ -126,7 +128,7 @@ setup_qterminal() {
   sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
   sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
   sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
-  sed -i 's/TerminalMargin.*/TerminalMargin=0/' $QTCONFIG/qterminal.ini
+  sed -i 's/TerminalMargin.*/TerminalMargin=1/' $QTCONFIG/qterminal.ini
   sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
   sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
   sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
@@ -170,6 +172,13 @@ setup_vscode() {
     "editor.glyphMargin": false,
     "editor.rulers": [80, 100, 120] }' > $VSCONFIG/settings.json
   fi
+}
+
+setup_xfce4() {
+  # Add right-super key to pull up whiskermenu
+  local old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
+  local super='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
+  sed -i "s#$old#$super#" $XFCECONFIG/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
 }
 
 main
