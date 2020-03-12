@@ -4,6 +4,7 @@
 #
 # - Make window borders thinner? May require .xpm headaches
 # - Possible to force xfce to reload all confs without session restart?
+# - VSCode extensions for Golang, Rust - what else?
 
 source config.sh
 
@@ -28,6 +29,7 @@ while [ "$#" -gt 0 ];do
     -R|--rust) rust=true; shift 1;;
     -G|--golang) golang=true; shift 1;;
     -X|--xfce) xfce=true; shift 1;;
+    -F|--fonts) fonts=true; shift 1;;
     -A|--all) golang=true; rust=true; code=true, xfce=true; shift 1;;
     *) err_echo "Unknown command: $1" >&2; exit 1;;
   esac
@@ -38,6 +40,7 @@ main() {
   sudo apt upgrade -y
   setup_git
   setup_qterminal
+  [[ $fonts ]] && setup_fonts
   [[ $xfce ]] && setup_xfce4
   [[ $code ]] && setup_vscode
   [[ $rust ]] && setup_rust
@@ -46,7 +49,7 @@ main() {
 
   # since we're prob running this from qterm, we have to kill it
   # to prevent the current loaded prefs in the session being re-written
-  local i=10
+  local i=5
   echo "This terminal will self destruct in $i..."
   sleep 1.0
   while [[ $i -gt 1 ]];do
@@ -56,6 +59,17 @@ main() {
   done
   pkill qterminal
   # "As I rained blows upon him, I realized; there had to be another way!" - Frank Costanza
+}
+
+setup_fonts() {
+  local monaco_url="https://github.com/hbin/top-programming-fonts/raw/master/Monaco-Linux.ttf"
+  local menlo_url="https://github.com/hbin/top-programming-fonts/raw/master/Menlo-Regular.ttf"
+  local proggy_url="https://cdn.proggyfonts.net/wp-content/downloads/ProggyTinySZ.ttf.zip"
+  sudo wget -O /usr/share/fonts/Monaco-Linux.ttf $monaco_url
+  sudo wget -O /usr/share/fonts/Menlo-Regular.ttf $menlo_url
+  sudo wget -O ~/Downloads/ProggyTinySZ.ttf.zip $proggy_url
+  sudo unzip ~/Downloads/ProggyTinySZ.ttf.zip -d /usr/share/fonts/
+  sudo fc-cache -fv
 }
 
 setup_bashrc() {
