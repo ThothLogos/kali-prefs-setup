@@ -176,9 +176,27 @@ setup_vscode() {
 
 setup_xfce4() {
   # Add right-super key to pull up whiskermenu
-  local old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
-  local super='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
-  sed -i "s#$old#$super#" $XFCECONFIG/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml
+  local whisker_old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
+  local whisker_new='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
+  sed -i "s#$whisker_old#$whiker_new#" $XFCECONFIG/xfce4-keyboard-shortcuts.xml
+
+  # Change screen timeout
+  local acsleep='    <property name="dpms-on-ac-sleep" type="uint" value="0"/>'
+  local acblank='    <property name="blank-on-ac" type="int" value="27"/>'
+  local acoff='    <property name="dpms-on-ac-off" type="uint" value="0"/>'
+  sed -i "/show-tray-icon/ a $acoff" $XFCECONFIG/xfce4-panel.xml
+  sed -i "/show-tray-icon/ a $acblank" $XFCECONFIG/xfce4-panel.xml
+  sed -i "/show-tray-icon/ a $acsleep" $XFCECONFIG/xfce4-panel.xml
+
+  # Move taskbar panel to bottom of screen
+  local panel_pos_old='<property name="position" type="string" value="p=6;x=0;y=0"/>'
+  local panel_pos_new='<property name="position" type="string" value="p=8;x=1280;y=1423"/>'
+  sed -i "s#$panel_pos_old#$panel_pos_new#" $XFCECONFIG/xfce4-panel.xml
+
+  # Make taskbar a bit thinner
+  local panel_size_old='<property name="size" type="uint" value="30"/>'
+  local panel_size_new='<property name="size" type="uint" value="18"/>'
+  sed -i "s#$panel_size_old#$panel_size_new#" $XFCECONFIG/xfce4-panel.xml
 }
 
 main
