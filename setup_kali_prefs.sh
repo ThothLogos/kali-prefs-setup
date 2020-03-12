@@ -1,10 +1,9 @@
 #!/bin/bash
 
-#TODO:
-
-#  - Screen timeout
-#  - Move whisker panel to bottom
-#  - Set R-Super to open whisker-menu
+# TODO:
+#
+# - Make window borders thinner? May require .xpm headaches
+# - Possible to force xfce to reload all confs without session restart?
 
 source config.sh
 
@@ -15,6 +14,7 @@ display_usage() {
   -C, --code                        Install & configure VSCode + extensions
   -R, --rust                        Install & update Rust latest stable
   -G, --golang                      Install Go latest stable
+  -X, --xfce                        Configure xfce4 panel, power, shortcuts
   -A, --all                         Install & configure all options
   -h, --help                        This screen
 
@@ -27,7 +27,8 @@ while [ "$#" -gt 0 ];do
     -C|--code) code=true; shift 1;;
     -R|--rust) rust=true; shift 1;;
     -G|--golang) golang=true; shift 1;;
-    -A|--all) golang=true; rust=true; code=true; shift 1;;
+    -X|--xfce) xfce=true; shift 1;;
+    -A|--all) golang=true; rust=true; code=true, xfce=true; shift 1;;
     *) err_echo "Unknown command: $1" >&2; exit 1;;
   esac
 done
@@ -37,6 +38,7 @@ main() {
   sudo apt upgrade -y
   setup_git
   setup_qterminal
+  [[ $xfce ]] && setup_xfce4
   [[ $code ]] && setup_vscode
   [[ $rust ]] && setup_rust
   [[ $golang ]] && setup_golang
@@ -135,9 +137,7 @@ setup_qterminal() {
   sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
   sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
   #sed -i 's/.*//' $QTCONFIG
-  # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?  
-  #echo "Removing write permissions from qterminal.ini,,, (workaround to make prefs stick)"
-  #chmod -w $QTCONFIG/qterminal.ini
+  # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
 }
 
 setup_vscode() {
