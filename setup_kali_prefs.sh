@@ -2,9 +2,19 @@
 
 # TODO:
 #
+# - Rust asks for confirmation, can we --yes that?
+# - qterminal seds fail unless user has opened the prefs pane already and hit apply, fix
 # - Make window borders thinner? May require .xpm headaches
 # - Possible to force xfce to reload all confs without session restart?
 # - VSCode extensions for Golang, Rust - what else?
+
+if ! [[ -f config.sh ]];then
+  echo "The config.sh file is missing! Please cp config_example.sh config.sh and setup."
+  exit 1
+elif [[ $(grep "changeme" config.sh) ]];then
+  echo "The config.sh file exists but still holds default example values, please configure!"
+  exit 1
+fi
 
 source config.sh
 
@@ -45,7 +55,10 @@ main() {
   [[ $code ]] && setup_vscode
   [[ $rust ]] && setup_rust
   [[ $golang ]] && setup_golang
-  setup_bashrc
+
+  if ! [[ $(grep "cd ~/Projects" ~/.bashrc) ]];then
+    echo "cd ~/Projects" >> ~/.bashrc
+  fi
 
   # since we're prob running this from qterm, we have to kill it
   # to prevent the current loaded prefs in the session being re-written
@@ -72,12 +85,6 @@ setup_fonts() {
   sudo fc-cache -fv
 }
 
-setup_bashrc() {
-  echo "cd ~/Projects" >> ~/.bashrc
-  [[ $rust_installed ]] && echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
-  [[ $golang_installed ]] && echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
-}
-
 setup_rust() {
   local rustuploc=$(which rustup)
   if ! [[ $rustuploc == "" ]];then
@@ -87,8 +94,8 @@ setup_rust() {
     curl https://sh.rustup.rs -sSf | sh
     if [[ $? -eq 0 ]];then
       echo "Rust installation successful, running update."
+      echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
       rustup update
-      rust_installed=true
     else
       echo "Rust installation failed!"
       rust_installed=false
@@ -111,7 +118,10 @@ setup_golang() {
     wget -O ~/Downloads/install_golang.tar.gz $url
     if [[ $? -eq 0 ]];then
       sudo tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
-      if [[ $? -eq 0 ]];then golang_installed=true;fi
+      if [[ $? -eq 0 ]];then
+        echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
+        golang_installed=true
+      fi
     else
       echo "Download with wget failed for $url, golang installation aborted"
       golang_installed=false
