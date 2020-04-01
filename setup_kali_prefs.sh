@@ -56,6 +56,10 @@ main() {
   [[ $rust ]] && setup_rust
   [[ $golang ]] && setup_golang
 
+  if ! [[ -d ~/Projects ]];then
+    mkdir ~/Projects
+  fi
+
   if ! [[ $(grep "cd ~/Projects" ~/.bashrc) ]];then
     echo "cd ~/Projects" >> ~/.bashrc
   fi
@@ -105,7 +109,7 @@ setup_rust() {
 
 setup_golang() {
   local goloc=$(which go)
-  if ! [[ $rustuploc == "" ]];then
+  if ! [[ $goloc == "" ]];then
     echo "[-] Golang is already installed, skipping."
   else
     echo "[+] Installing latest stable Golang..."
