@@ -33,6 +33,11 @@ display_usage() {
   "
 }
 
+if [[ $# -eq 0 ]];then
+  display_usage
+  exit 0
+fi
+
 while [ "$#" -gt 0 ];do
   case "$1" in
     -h|--help) display_usage; exit 0;;
