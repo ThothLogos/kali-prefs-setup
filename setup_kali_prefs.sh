@@ -161,7 +161,7 @@ setup_git() {
 setup_qterminal() {
   if ! [[ -f /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme ]];then
     echo "Downloading QTerminal Rosipov theme..."
-    local url="https://raw.githubusercontent.com/ThothLogos/rosipov-theme/master/Rosipov.colorscheme"
+    local url="https://raw.githubusercontent.com/ThothLogos/rosipov-theme/master/Rosipov-lightfg.colorscheme"
     wget -O /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme $url
   fi
   echo "Setting options in $QTCONFIG/qterminal.ini..."
