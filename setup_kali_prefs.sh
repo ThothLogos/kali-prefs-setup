@@ -26,6 +26,7 @@ display_usage() {
   -R, --rust                        Install & update Rust latest stable
   -G, --golang                      Install Go latest stable
   -X, --xfce                        Configure xfce4 panel, power, shortcuts
+  -F, --fonts                       Monaco, Menlo, ProggyTinySZ
   -A, --all                         Install & configure all options
   -h, --help                        This screen
 
@@ -40,7 +41,7 @@ while [ "$#" -gt 0 ];do
     -G|--golang) golang=true; shift 1;;
     -X|--xfce) xfce=true; shift 1;;
     -F|--fonts) fonts=true; shift 1;;
-    -A|--all) golang=true; rust=true; code=true, xfce=true; shift 1;;
+    -A|--all) golang=true; rust=true; code=true, xfce=true, fonts=true; shift 1;;
     *) err_echo "Unknown command: $1" >&2; exit 1;;
   esac
 done
@@ -154,18 +155,32 @@ setup_git() {
 
 setup_qterminal() {
   echo "Setting options in $QTCONFIG/qterminal.ini..."
-  sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
-  sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
-  sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
-  sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
-  sed -i 's/TerminalMargin.*/TerminalMargin=1/' $QTCONFIG/qterminal.ini
-  sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
-  sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
-  sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
-  sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
-  sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
-  #sed -i 's/.*//' $QTCONFIG
-  # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
+  if ! [[ -f $QTCONFIG/qterminal.ini ]];then
+    touch $QTCONFIG/qterminal.ini
+    sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
+    sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
+    sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
+    sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
+    sed -i 's/TerminalMargin.*/TerminalMargin=1/' $QTCONFIG/qterminal.ini
+    sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
+    sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
+    se d -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
+    sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
+    sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
+  else
+    sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
+    sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
+    sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
+    sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
+    sed -i 's/TerminalMargin.*/TerminalMargin=1/' $QTCONFIG/qterminal.ini
+    sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
+    sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
+    sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
+    sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
+    sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
+    #sed -i 's/.*//' $QTCONFIG
+    # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
+  fi
 }
 
 setup_vscode() {
