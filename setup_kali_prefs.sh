@@ -2,8 +2,9 @@
 
 # TODO:
 #
+# - Do keyboard shortcuts need to move to /etc/xdg/xfce4/xfconf/xfce-perchannel/?
 # - Rust asks for confirmation, can we --yes that?
-# - qterminal seds fail unless user has opened the prefs pane already and hit apply, fix
+# - qterminal seds fail unless user has opened the prefs pane already and hit apply - maybe fixed?
 # - Make window borders thinner? May require .xpm headaches
 # - Possible to force xfce to reload all confs without session restart?
 # - VSCode extensions for Golang, Rust - what else?
@@ -171,18 +172,27 @@ setup_qterminal() {
   fi
   echo "Setting options in $QTCONFIG/qterminal.ini..."
   if ! [[ -f $QTCONFIG/qterminal.ini ]];then
+    echo "The qterminal.ini file doesn't exist, creating and setting configs."
     touch $QTCONFIG/qterminal.ini
-    sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
-    sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
-    sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
-    sed -i 's/ScrollbarPosition.*/ScrollbarPosition=0/' $QTCONFIG/qterminal.ini
-    sed -i 's/TerminalMargin.*/TerminalMargin=1/' $QTCONFIG/qterminal.ini
-    sed -i 's/TerminalTransparency.*/TerminalTransparency=0/' $QTCONFIG/qterminal.ini
-    sed -i 's/colorScheme.*/colorScheme=Tango/' $QTCONFIG/qterminal.ini
-    se d -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
-    sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
-    sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
+    echo '[General]'                   >> $QTCONFIG/qterminal.ini
+    echo 'Borderless=true'             >> $QTCONFIG/qterminal.ini
+    echo 'HistoryLimited=false'        >> $QTCONFIG/qterminal.ini
+    echo 'MenuVisible=false'           >> $QTCONFIG/qterminal.ini
+    echo 'ScrollbarPosition=0'         >> $QTCONFIG/qterminal.ini
+    echo 'TerminalMargin=1'            >> $QTCONFIG/qterminal.ini
+    echo 'TerminalTransparency=0'      >> $QTCONFIG/qterminal.ini
+    echo 'colorScheme=Rosipov'         >> $QTCONFIG/qterminal.ini
+    echo 'fontFamily=DejaVu Sans Mono' >> $QTCONFIG/qterminal.ini
+    echo 'fontSize=7'                  >> $QTCONFIG/qterminal.ini
+    echo 'ApplicationTransparency=0'   >> $QTCONFIG/qterminal.ini
+    echo ''
+    echo '[Shortcuts]'
+    echo 'Collapse%20Subterminal=Ctrl+W'          >> $QTCONFIG/qterminal.ini
+    echo 'Split%20Terminal%20Horizontally=Ctrl+E' >> $QTCONFIG/qterminal.ini
+    echo 'Split%20Terminal%20Vertically=Ctrl+D'   >> $QTCONFIG/qterminal.ini
+    echo ''
   else
+    echo "The qterminal.ini was found, updating configuration."
     sed -i 's/Borderless.*/Borderless=true/' $QTCONFIG/qterminal.ini
     sed -i 's/HistoryLimited.*/HistoryLimited=false/' $QTCONFIG/qterminal.ini
     sed -i 's/MenuVisible.*/MenuVisible=false/' $QTCONFIG/qterminal.ini
@@ -193,8 +203,11 @@ setup_qterminal() {
     sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
     sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
     sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
+    sed -i 's/Collapse%20Subterminal.*/Collapse%20Subterminal=Ctrl+W' $QTCONFIG/qterminal.ini
+    echo 'Split%20Terminal%20Horizontally=Ctrl+E' >> $QTCONFIG/qterminal.ini
+    echo 'Split%20Terminal%20Vertically=Ctrl+D'   >> $QTCONFIG/qterminal.ini
+    echo ''
     #sed -i 's/.*//' $QTCONFIG
-    # also set ctrl+w, ctrl+e, ctrl+d - split panes and close subterminal?
   fi
 }
 
@@ -234,27 +247,35 @@ setup_vscode() {
 
 setup_xfce4() {
   # Add right-super key to pull up whiskermenu
-  local whisker_old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
-  local whisker_new='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
-  sed -i "s#$whisker_old#$whiker_new#" $XFCECONFIG/xfce4-keyboard-shortcuts.xml
+  if [[ -f $XFCECONFIG/xfce4-keyboard-shortcuts.xml ]];then
+    local whisker_old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
+    local whisker_new='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
+    sed -i "s#$whisker_old#$whiker_new#" $XFCECONFIG/xfce4-keyboard-shortcuts.xml
+  else
+    echo "The $XFCECONFIG/xfce4-keyboard-shortcuts.xml doesn't exist yet!"
+  fi
 
-  # Change screen timeout
-  local acsleep='    <property name="dpms-on-ac-sleep" type="uint" value="0"/>'
-  local acblank='    <property name="blank-on-ac" type="int" value="27"/>'
-  local acoff='    <property name="dpms-on-ac-off" type="uint" value="0"/>'
-  sed -i "/show-tray-icon/ a $acoff" $XFCECONFIG/xfce4-panel.xml
-  sed -i "/show-tray-icon/ a $acblank" $XFCECONFIG/xfce4-panel.xml
-  sed -i "/show-tray-icon/ a $acsleep" $XFCECONFIG/xfce4-panel.xml
+  if [[ -f $XFCECONFIG/xfce4-panel.xml ]];then
+    # Change screen timeout
+    local acsleep='    <property name="dpms-on-ac-sleep" type="uint" value="0"/>'
+    local acblank='    <property name="blank-on-ac" type="int" value="27"/>'
+    local acoff='    <property name="dpms-on-ac-off" type="uint" value="0"/>'
+    sed -i "/show-tray-icon/ a $acoff" $XFCECONFIG/xfce4-panel.xml
+    sed -i "/show-tray-icon/ a $acblank" $XFCECONFIG/xfce4-panel.xml
+    sed -i "/show-tray-icon/ a $acsleep" $XFCECONFIG/xfce4-panel.xml
 
-  # Move taskbar panel to bottom of screen
-  local panel_pos_old='<property name="position" type="string" value="p=6;x=0;y=0"/>'
-  local panel_pos_new='<property name="position" type="string" value="p=8;x=1280;y=1423"/>'
-  sed -i "s#$panel_pos_old#$panel_pos_new#" $XFCECONFIG/xfce4-panel.xml
+    # Move taskbar panel to bottom of screen
+    local panel_pos_old='<property name="position" type="string" value="p=6;x=0;y=0"/>'
+    local panel_pos_new='<property name="position" type="string" value="p=8;x=1280;y=1423"/>'
+    sed -i "s#$panel_pos_old#$panel_pos_new#" $XFCECONFIG/xfce4-panel.xml
 
-  # Make taskbar a bit thinner
-  local panel_size_old='<property name="size" type="uint" value="30"/>'
-  local panel_size_new='<property name="size" type="uint" value="18"/>'
-  sed -i "s#$panel_size_old#$panel_size_new#" $XFCECONFIG/xfce4-panel.xml
+    # Make taskbar a bit thinner
+    local panel_size_old='<property name="size" type="uint" value="30"/>'
+    local panel_size_new='<property name="size" type="uint" value="18"/>'
+    sed -i "s#$panel_size_old#$panel_size_new#" $XFCECONFIG/xfce4-panel.xml
+  else
+    echo "The $XFCECONFIG/xfce4-panel.xml doesn't exist yet!"
+  fi
 }
 
 main
