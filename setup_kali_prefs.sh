@@ -83,6 +83,7 @@ main() {
 }
 
 setup_fonts() {
+  echo "Installing fonts..."
   local monaco_url="https://github.com/hbin/top-programming-fonts/raw/master/Monaco-Linux.ttf"
   local menlo_url="https://github.com/hbin/top-programming-fonts/raw/master/Menlo-Regular.ttf"
   local proggy_url="https://cdn.proggyfonts.net/wp-content/downloads/ProggyTinySZ.ttf.zip"
@@ -158,6 +159,11 @@ setup_git() {
 }
 
 setup_qterminal() {
+  if ! [[ -f /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme ]];then
+    echo "Downloading QTerminal Rosipov theme..."
+    local url="https://raw.githubusercontent.com/ThothLogos/rosipov-theme/master/Rosipov.colorscheme"
+    wget -O /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme $url
+  fi
   echo "Setting options in $QTCONFIG/qterminal.ini..."
   if ! [[ -f $QTCONFIG/qterminal.ini ]];then
     touch $QTCONFIG/qterminal.ini
