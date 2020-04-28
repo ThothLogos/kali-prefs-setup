@@ -65,18 +65,21 @@ main() {
     echo "cd ~/Projects" >> ~/.bashrc
   fi
 
-  # since we're prob running this from qterm, we have to kill it
-  # to prevent the current loaded prefs in the session being re-written
-  local i=5
-  echo "This terminal will self destruct in $i..."
-  sleep 1.0
-  while [[ $i -gt 1 ]];do
-    i=$(($i-1))
-    echo "... $i"
+  if [[ $xfce ]];then
+    # since we're prob running this from qterm, we have to kill it
+    # to prevent the current loaded prefs in the session being re-written
+    local i=5
+    echo "This terminal will self destruct in $i..."
     sleep 1.0
-  done
-  pkill qterminal
-  # "As I rained blows upon him, I realized; there had to be another way!" - Frank Costanza
+    while [[ $i -gt 1 ]];do
+      i=$(($i-1))
+      echo "... $i"
+      sleep 1.0
+    done
+    pkill qterminal
+    # "As I rained blows upon him, I realized; there had to be another way!" - Frank Costanza
+  fi
+  echo "Done"
 }
 
 setup_fonts() {
@@ -99,7 +102,7 @@ setup_rust() {
     curl https://sh.rustup.rs -sSf | sh
     if [[ $? -eq 0 ]];then
       echo "Rust installation successful, running update."
-      echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
+      echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
       rustup update
     else
       echo "Rust installation failed!"
@@ -124,7 +127,8 @@ setup_golang() {
     if [[ $? -eq 0 ]];then
       sudo tar -C /usr/local -xzf ~/Downloads/install_golang.tar.gz
       if [[ $? -eq 0 ]];then
-        echo "export PATH=\"$HOME/.cargo/bin:$PATH\"" >> ~/.bashrc
+        echo "Go installation successful"
+        echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
         golang_installed=true
       fi
     else
