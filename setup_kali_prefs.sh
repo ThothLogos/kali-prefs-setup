@@ -5,7 +5,6 @@
 # - Do keyboard shortcuts need to move to /etc/xdg/xfce4/xfconf/xfce-perchannel/?
 # - Rust asks for confirmation, can we --yes that?
 # - qterminal seds fail unless user has opened the prefs pane already and hit apply - maybe fixed?
-# - Make window borders thinner? May require .xpm headaches
 # - Possible to force xfce to reload all confs without session restart?
 # - VSCode extensions for Golang, Rust - what else?
 
@@ -26,7 +25,7 @@ display_usage() {
   -C, --code                        Install & configure VSCode + extensions
   -R, --rust                        Install & update Rust latest stable
   -G, --golang                      Install Go latest stable
-  -X, --xfce                        Configure xfce4 panel, power, shortcuts
+  -X, --xfce                        Configure xfce4 panel, power, shortcuts, theme
   -F, --fonts                       Monaco, Menlo, ProggyTinySZ
   -A, --all                         Install & configure all options
   -h, --help                        This screen
@@ -207,7 +206,6 @@ setup_qterminal() {
     echo 'Split%20Terminal%20Horizontally=Ctrl+E' >> $QTCONFIG/qterminal.ini
     echo 'Split%20Terminal%20Vertically=Ctrl+D'   >> $QTCONFIG/qterminal.ini
     echo ''
-    #sed -i 's/.*//' $QTCONFIG
   fi
 }
 
@@ -246,16 +244,26 @@ setup_vscode() {
 }
 
 setup_xfce4() {
+    setup_xfce4_keyboard
+    setup_xfce4_panel
+    setup_xfce4_theme
+}
+
+setup_xfce4_keyboard() {
   # Add right-super key to pull up whiskermenu
   if [[ -f $XFCECONFIG/xfce4-keyboard-shortcuts.xml ]];then
+    echo "Attempting to modify XFCE Keyboard settings..."
     local whisker_old='<property name="&lt;Primary&gt;Escape" type="string" value="xfce4-popup-whiskermenu"/>'
     local whisker_new='<property name="Super_R" type="string" value="xfce4-popup-whiskermenu"/>'
     sed -i "s#$whisker_old#$whiker_new#" $XFCECONFIG/xfce4-keyboard-shortcuts.xml
   else
     echo "The $XFCECONFIG/xfce4-keyboard-shortcuts.xml doesn't exist yet!"
   fi
+}
 
+setup_xfce4_panel() {
   if [[ -f $XFCECONFIG/xfce4-panel.xml ]];then
+    echo "Attempting to modify XFCE Panel settings..."
     # Change screen timeout
     local acsleep='    <property name="dpms-on-ac-sleep" type="uint" value="0"/>'
     local acblank='    <property name="blank-on-ac" type="int" value="27"/>'
@@ -275,6 +283,22 @@ setup_xfce4() {
     sed -i "s#$panel_size_old#$panel_size_new#" $XFCECONFIG/xfce4-panel.xml
   else
     echo "The $XFCECONFIG/xfce4-panel.xml doesn't exist yet!"
+  fi
+}
+
+setup_xfce4_theme() {
+  echo "Attempting to install Numix theme..."
+  sudo apt install numix-gtk-theme -y
+  if [[ $? -eq 0 ]];then
+    echo "Setting up Numix theme..."
+    local old_prefix='    <property name="theme" type="string" value="'
+    local theme_new='    <property name="theme" type="string" value="Numix"/>'
+    # Replace w/e the current theme is with Numix
+    sed -i "s#$old_prefix\w*\"/>#$theme_new#" $XFCECONFIG/xfwm4.xml
+
+    # Make the bottom window border 2 pixels thick
+    sed -i 's/"8 5 3 1",/"8 2 3 1",/' $NUMIXLOC/xfwm4/bottom-active.xpm
+    echo "Numix complete."
   fi
 }
 
