@@ -229,6 +229,7 @@ setup_vscode() {
     code --install-extension nimda.deepdark-material
     echo "Setting up VSCode settings.json..."
     echo '{
+    "files.trimTrailingWhitespace": true,
     "breadcrumbs.enabled": false,
     "window.zoomLevel": -1,
     "workbench.colorTheme": "Deepdark Material Theme | Full Black Version",
