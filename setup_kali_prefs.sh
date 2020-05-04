@@ -7,6 +7,7 @@
 # - qterminal seds fail unless user has opened the prefs pane already and hit apply - maybe fixed?
 # - Possible to force xfce to reload all confs without session restart?
 # - VSCode extensions for Golang, Rust - what else?
+# - Can we set up FireFox with a cert from burpsuite?
 
 if ! [[ -f config.sh ]];then
   echo "The config.sh file is missing! Please cp config_example.sh config.sh and setup."
