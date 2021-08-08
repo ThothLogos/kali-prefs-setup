@@ -168,7 +168,7 @@ setup_qterminal() {
   if ! [[ -f /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme ]];then
     echo "Downloading QTerminal Rosipov theme..."
     local url="https://raw.githubusercontent.com/ThothLogos/rosipov-theme/master/Rosipov-lightfg.colorscheme"
-    wget -O /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme $url
+    sudo wget -O /usr/share/qtermwidget5/color-schemes/Rosipov.colorscheme $url
   fi
   echo "Setting options in $QTCONFIG/qterminal.ini..."
   if ! [[ -f $QTCONFIG/qterminal.ini ]];then
@@ -203,7 +203,7 @@ setup_qterminal() {
     sed -i 's/fontFamily.*/fontFamily=DejaVu Sans Mono/' $QTCONFIG/qterminal.ini
     sed -i 's/fontSize.*/fontSize=7/' $QTCONFIG/qterminal.ini
     sed -i 's/ApplicationTransparency.*/ApplicationTransparency=0/' $QTCONFIG/qterminal.ini
-    sed -i 's/Collapse%20Subterminal.*/Collapse%20Subterminal=Ctrl+W' $QTCONFIG/qterminal.ini
+    sed -i 's/Collapse%20Subterminal.*/Collapse%20Subterminal=Ctrl+W/' $QTCONFIG/qterminal.ini
     echo 'Split%20Terminal%20Horizontally=Ctrl+E' >> $QTCONFIG/qterminal.ini
     echo 'Split%20Terminal%20Vertically=Ctrl+D'   >> $QTCONFIG/qterminal.ini
     echo ''
