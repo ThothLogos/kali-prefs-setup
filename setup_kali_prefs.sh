@@ -214,6 +214,7 @@ setup_vscode() {
   local codeloc=$(which code)
   if ! [[ $codeloc == "" ]];then
     echo "[-] VSCode is already installed, skipping."
+    vs_installed=true
   else
     echo "[+] Installing VSCode..."
     wget -O ~/Downloads/installcode.deb https://go.microsoft.com/fwlink/?LinkID=760868
